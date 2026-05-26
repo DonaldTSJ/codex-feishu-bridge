@@ -1,0 +1,11 @@
+.DS_Store
+*.log
+*.pid
+*.swp
+
+.env
+.env.local
+
+node_modules/
+.npm-cache/
+generated/
