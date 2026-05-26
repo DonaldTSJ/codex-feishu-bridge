@@ -1,0 +1,21 @@
+{
+  "name": "codex-feishu-bridge",
+  "version": "0.1.0",
+  "description": "Minimal Feishu/Lark bot bridge for running local Codex CLI and replying with the final result.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "start:env": "node --env-file=.env src/index.js",
+    "check": "node --check src/index.js && node --check src/codex.js && node --check src/image.js && node --check src/sessions.js"
+  },
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.66.0"
+  },
+  "overrides": {
+    "axios": "1.16.1"
+  }
+}
