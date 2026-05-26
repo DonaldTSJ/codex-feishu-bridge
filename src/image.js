@@ -110,7 +110,7 @@ function cleanCandidate(value) {
       return "";
     }
   }
-  out = out.replace(/^[`'\"]+|[`'\"]+$/g, "");
+  out = out.replace(/^['"`]+|['"`]+$/g, "");
   out = out.replace(/[),.;]+$/g, "");
   return out.trim();
 }
