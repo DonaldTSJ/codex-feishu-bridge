@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 飞书桥接项目小白教材</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --paper: #ffffff;
+      --ink: #172033;
+      --muted: #5f6d82;
+      --line: #d8dee8;
+      --soft: #eef3f8;
+      --blue: #246bfe;
+      --green: #168b58;
+      --orange: #b45b19;
+      --red: #b83a3a;
+      --purple: #6746c3;
+      --shadow: 0 18px 45px rgba(29, 43, 68, 0.10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .hero {
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.94), rgba(255,255,255,0.78)),
+        radial-gradient(circle at 88% 18%, rgba(36,107,254,0.12), transparent 34%),
+        linear-gradient(135deg, #f9fbff, #eef3f8);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 22px 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 15px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 650;
+      font-size: 14px;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .chat-board {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 330px;
+    }
+
+    .chat-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .dot:nth-child(1) { background: #ff6b6b; }
+    .dot:nth-child(2) { background: #f0b429; }
+    .dot:nth-child(3) { background: #2fb344; }
+
+    .bubble {
+      max-width: 92%;
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      font-size: 14px;
+    }
+
+    .bubble.user {
+      margin-left: auto;
+      background: #eaf1ff;
+      border-color: #bfd0ff;
+    }
+
+    .bubble.system {
+      border-style: dashed;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .content {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 26px 22px 58px;
+    }
+
+    section {
+      margin-top: 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 28px rgba(29, 43, 68, 0.06);
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 15px;
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--soft);
+      color: var(--muted);
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 18px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .node {
+      position: relative;
+      min-height: 125px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 48%;
+      right: -16px;
+      z-index: 2;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .node .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .i-user { background: var(--blue); }
+    .i-feishu { background: var(--green); }
+    .i-bridge { background: var(--orange); }
+    .i-codex { background: var(--purple); }
+    .i-back { background: var(--red); }
+
+    .sequence {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 14px;
+    }
+
+    .lane-head,
+    .lane-row {
+      display: grid;
+      grid-template-columns: 84px repeat(4, minmax(130px, 1fr));
+    }
+
+    .lane-head div {
+      background: var(--soft);
+      font-weight: 800;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .lane-head div,
+    .lane-row div {
+      padding: 10px;
+      border-right: 1px solid var(--line);
+    }
+
+    .lane-row div {
+      min-height: 58px;
+      font-size: 13px;
+    }
+
+    .lane-row div:last-child,
+    .lane-head div:last-child {
+      border-right: none;
+    }
+
+    .step {
+      font-weight: 800;
+      color: var(--muted);
+      background: #fbfcff;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      padding: 14px;
+      background: #111827;
+      color: #e5edf8;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .file-list {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .file-list div {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .file-list div:nth-child(odd) {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #fbfcff;
+      font-size: 13px;
+      color: #26364f;
+      border-right: 1px solid var(--line);
+    }
+
+    .file-list div:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
+
+    .callout {
+      border-left: 4px solid var(--blue);
+      background: #f4f7ff;
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+
+    .checklist {
+      padding-left: 20px;
+      margin: 10px 0 0;
+    }
+
+    .checklist li {
+      margin: 6px 0;
+    }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      padding: 26px 16px 34px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 880px) {
+      .hero-inner,
+      .grid,
+      .two {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram {
+        grid-template-columns: 1fr;
+        overflow: visible;
+      }
+
+      .node:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -16px;
+        transform: translateX(50%) rotate(90deg);
+      }
+
+      .lane-head,
+      .lane-row {
+        grid-template-columns: 72px repeat(4, minmax(120px, 1fr));
+        min-width: 640px;
+      }
+
+      .sequence {
+        overflow-x: auto;
+      }
+
+      .file-list {
+        grid-template-columns: 1fr;
+      }
+
+      .file-list div:nth-child(odd) {
+        border-right: none;
+        border-bottom: none;
+      }
+
+      .file-list div:nth-child(even) {
+        border-bottom: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <h1>Codex 飞书桥接项目小白教材</h1>
+          <p class="lead">
+            这页用“群聊天”的方式解释一个本机服务：你在飞书里发消息，飞书机器人把消息交给本机 Node 桥接程序，桥接程序请 Codex 干活，再把 Codex 的回答送回飞书。
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#flow">看完整流程</a>
+            <a class="btn" href="#files">看代码怎么分工</a>
+            <a class="btn" href="#group-chat">用群聊比喻理解</a>
+          </div>
+        </div>
+        <div class="chat-board" aria-label="飞书对话示意图">
+          <div class="chat-title">
+            <span>飞书私聊：你 ↔ 机器人</span>
+            <span class="dot-row"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+          </div>
+          <div class="bubble user">帮我看一下项目里为什么测试失败</div>
+          <div class="bubble system">Codex 执行中。</div>
+          <div class="bubble">我会读取工作目录、运行检查命令，然后给你总结错误原因。</div>
+          <div class="bubble user">/status</div>
+          <div class="bubble">workdir: /Users/.../agenttest<br>codex: codex-cli 0.133.0-alpha.1<br>session: 019e...</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <section id="what">
+        <h2>1. 这个项目到底是什么？</h2>
+        <p>
+          它不是 Codex 本身，也不是飞书本身。它是夹在两者中间的“小翻译 + 小调度员”。
+          飞书只懂聊天消息，Codex 只懂命令行任务；桥接项目负责把聊天消息变成命令行输入，再把命令行输出变成飞书回复。
+        </p>
+        <div class="grid">
+          <div class="card">
+            <strong>你</strong>
+            在飞书里输入自然语言，比如“帮我解释这段代码”。
+          </div>
+          <div class="card">
+            <strong>飞书机器人</strong>
+            接收你的消息，并通过飞书开放平台把事件送到本机服务。
+          </div>
+          <div class="card">
+            <strong>本机桥接服务</strong>
+            一个 Node.js 程序，负责筛选消息、排队、调用 Codex、回传结果。
+          </div>
+          <div class="card">
+            <strong>Codex CLI</strong>
+            真正执行任务的本地命令行工具，能读项目、跑命令、修改文件。
+          </div>
+          <div class="card">
+            <strong>session 文件</strong>
+            记住每个 chat 对应的 Codex 对话，让下一句能接着上一句说。
+          </div>
+          <div class="card">
+            <strong>screen 后台会话</strong>
+            让桥接服务一直开着，不然你关掉终端后机器人就不听消息了。
+          </div>
+        </div>
+      </section>
+
+      <section id="group-chat">
+        <h2>2. 用“群聊天”理解软件服务间的通话</h2>
+        <p>
+          对编程小白来说，最容易理解的模型是：每个软件服务都是群里的一个成员，只是它们不一定用中文聊天，有的用事件，有的用 JSON，有的用命令行。
+        </p>
+        <div class="callout">
+          你可以把整个系统想象成一个工作群：你是老板，飞书机器人是前台，桥接服务是项目经理，Codex 是工程师，session 文件是会议纪要。
+        </div>
+        <div class="grid">
+          <div class="card">
+            <strong>老板：你</strong>
+            “请帮我修这个 bug。”
+          </div>
+          <div class="card">
+            <strong>前台：飞书机器人</strong>
+            “收到一条用户消息，我转给项目经理。”
+          </div>
+          <div class="card">
+            <strong>项目经理：bridge</strong>
+            “这条消息有效，先排队，再找工程师处理。”
+          </div>
+          <div class="card">
+            <strong>工程师：Codex</strong>
+            “我读代码、跑命令、生成回答。”
+          </div>
+          <div class="card">
+            <strong>会议纪要：session</strong>
+            “上次聊到哪里了，我帮大家记住。”
+          </div>
+          <div class="card">
+            <strong>回到群里</strong>
+            “工程师的最终结论发回飞书。”
+          </div>
+        </div>
+      </section>
+
+      <section id="flow">
+        <h2>3. 总结构图：一条消息怎么跑完整圈</h2>
+        <p class="muted">下面这张图是最重要的。看懂它，就看懂了 80% 的项目。</p>
+        <div class="diagram" role="img" aria-label="从飞书消息到 Codex 回答的流程图">
+          <div class="node">
+            <div class="icon i-user">你</div>
+            <strong>飞书输入</strong>
+            <p>私聊机器人，或在群里 @ 机器人。</p>
+          </div>
+          <div class="node">
+            <div class="icon i-feishu">飞</div>
+            <strong>飞书开放平台</strong>
+            <p>把消息变成事件，通过长连接送到本机。</p>
+          </div>
+          <div class="node">
+            <div class="icon i-bridge">桥</div>
+            <strong>Node 桥接服务</strong>
+            <p>判断是否要处理，支持 /new、/status、生图命令和排队。</p>
+          </div>
+          <div class="node">
+            <div class="icon i-codex">C</div>
+            <strong>Codex CLI</strong>
+            <p>执行 <code>codex exec --json</code>，输出 JSONL。</p>
+          </div>
+          <div class="node">
+            <div class="icon i-back">回</div>
+            <strong>回传飞书</strong>
+            <p>桥接服务拿最终回答或图片文件，用机器人身份回复。</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>4. 时序图：每一步谁在说话</h2>
+        <p class="muted">横向看：从左到右是不同角色。纵向看：从第 1 步到第 8 步。</p>
+        <div class="sequence">
+          <div class="lane-head">
+            <div></div><div>你</div><div>飞书平台</div><div>桥接服务</div><div>Codex</div>
+          </div>
+          <div class="lane-row">
+            <div class="step">1</div><div>发送“帮我检查代码”</div><div></div><div></div><div></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">2</div><div></div><div>收到消息事件</div><div></div><div></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">3</div><div></div><div>通过长连接推送</div><div><code>channel.on({ message })</code></div><div></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">4</div><div></div><div></div><div>过滤、识别命令、进入队列</div><div></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">5</div><div></div><div></div><div>发“Codex 执行中。”</div><div></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">6</div><div></div><div></div><div>启动子进程</div><div><code>codex exec --json</code></div>
+          </div>
+          <div class="lane-row">
+            <div class="step">7</div><div></div><div></div><div>解析 JSONL，保存 session</div><div>输出最终文本或 IMAGE_PATH</div>
+          </div>
+          <div class="lane-row">
+            <div class="step">8</div><div>看到答案或图片</div><div>发送机器人消息</div><div><code>channel.send()</code> / 图片回复</div><div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="files">
+        <h2>5. 文件分工：小白应该先看哪几个文件</h2>
+        <div class="file-list">
+          <div>src/index.js</div>
+          <div>总指挥。连接飞书、监听消息、判断是否处理、排队、调用 Codex、回传答案。</div>
+          <div>src/codex.js</div>
+          <div>Codex 专员。负责启动 <code>codex</code> 命令、把 prompt 写进 stdin、读取 JSONL 输出。</div>
+          <div>src/image.js</div>
+          <div>图片助手。识别生图命令、构造 Codex 图片任务、校验 Codex 产出的本地图片。</div>
+          <div>src/sessions.js</div>
+          <div>记忆本。把每个 chat 的 Codex session id 存到 <code>~/.codex-feishu-bridge/sessions.json</code>。</div>
+          <div>launch-wrapper.sh</div>
+          <div>启动脚本。设置 PATH 和环境变量，然后启动 Node 服务。</div>
+          <div>.env.example</div>
+          <div>配置模板。真正的 Secret 不应该写进项目文件。</div>
+          <div>SPEC.md</div>
+          <div>项目规格。说明目标、配置、运行行为、测试方式和安全默认值。</div>
+        </div>
+
+        <h3>阅读顺序建议</h3>
+        <ol class="checklist">
+          <li>先看 <code>SPEC.md</code>，知道项目要解决什么问题。</li>
+          <li>再看 <code>src/index.js</code> 的 <code>handleMessage()</code>，理解飞书消息进来后怎么处理。</li>
+          <li>再看 <code>src/codex.js</code> 的 <code>runCodex()</code>，理解怎么调用 Codex。</li>
+          <li>如果关心生图，再看 <code>src/image.js</code>，理解图片命令和图片路径校验。</li>
+          <li>最后看 <code>src/sessions.js</code>，理解为什么连续对话能接上。</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>6. 关键代码翻译成人话</h2>
+        <h3>飞书消息入口</h3>
+        <pre><code>channel.on({
+  message: (msg) =&gt; {
+    void handleMessage(msg)
+  }
+})</code></pre>
+        <p>
+          人话：飞书每送来一条消息，就调用 <code>handleMessage</code>。这里的 <code>msg</code> 就是“快递包裹”，里面有 chat id、发送人、消息内容、是否 @ 机器人等信息。
+        </p>
+
+        <h3>判断要不要处理</h3>
+        <pre><code>if (msg.chatType !== "p2p" &amp;&amp; config.requireMentionInGroup &amp;&amp; !msg.mentionedBot) return;</code></pre>
+        <p>
+          人话：如果不是私聊，而且配置要求群里必须 @，但这条消息没 @ 机器人，那就不理。这样机器人不会偷听整个群的所有聊天。
+        </p>
+
+        <h3>调用 Codex</h3>
+        <pre><code>const result = await runCodex({
+  prompt: text,
+  sessionId: previousSessionId,
+  workdir: config.workdir,
+  sandbox: config.sandbox
+});</code></pre>
+        <p>
+          人话：把你在飞书里说的话交给 Codex。如果之前这个 chat 已经聊过，就带上 session id，让 Codex 继续同一个对话。
+        </p>
+
+        <h3>回传飞书</h3>
+        <pre><code>await channel.send(msg.chatId, { markdown: result.text }, { replyTo: msg.messageId });</code></pre>
+        <p>
+          人话：把 Codex 最终回答发回同一个飞书 chat，并且回复到你的原消息下面。
+        </p>
+
+        <h3>图片回传</h3>
+        <pre><code>await sendImageReply(msg, imageResult.path);</code></pre>
+        <p>
+          人话：如果你发的是 <code>/image</code>、<code>生图</code>、<code>画一张</code> 这类命令，桥接会要求 Codex 把图片保存成本地文件，再上传成飞书图片消息。
+        </p>
+      </section>
+
+      <section>
+        <h2>7. 为什么需要 session？</h2>
+        <p>
+          如果没有 session，你每发一句，Codex 都像第一次见你。session 就像“会议纪要”，让 Codex 记得上轮说过什么。
+        </p>
+        <div class="grid two">
+          <div class="card">
+            <strong>没有 session</strong>
+            你说“继续刚才那个方案”，Codex 可能不知道“刚才”是什么。
+          </div>
+          <div class="card">
+            <strong>有 session</strong>
+            你说“继续”，桥接服务把旧 session id 带给 Codex，Codex 能接上上下文。
+          </div>
+        </div>
+        <pre><code>{
+  "oc_xxx_chat_id": {
+    "sessionId": "019e635a-...",
+    "updatedAt": 1779783591518
+  }
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>8. 私聊、群聊、命令分别怎么工作？</h2>
+        <div class="grid">
+          <div class="card">
+            <span class="tag">私聊</span>
+            <strong>直接发消息</strong>
+            任何文本都会进入 Codex，适合个人使用。
+          </div>
+          <div class="card">
+            <span class="tag">群聊</span>
+            <strong>默认必须 @</strong>
+            群里只有 @ 机器人时才处理，避免误触发。
+          </div>
+          <div class="card">
+            <span class="tag">命令</span>
+            <strong>/new 和 /status</strong>
+            <code>/new</code> 清空当前 chat 的记忆；<code>/status</code> 查看运行状态。
+          </div>
+          <div class="card">
+            <span class="tag">生图</span>
+            <strong>/image、/img、画一张</strong>
+            生图命令会让 Codex 产出本地图片，再由桥接上传回飞书。
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>9. 你怎么知道是 Codex 在回答？</h2>
+        <p>
+          当前项目里，普通文本消息只会调用 <code>runCodex()</code>，所以“Codex 执行中。”后面的最终回复就是 Codex CLI 的回答。
+          另外，最终回复会带 <code>Codex · session ...</code> 页脚，发 <code>/status</code> 也可以看到当前使用的 <code>codex-cli</code> 版本。
+        </p>
+        <div class="callout">
+          图片消息本身不能直接带长文本，所以桥接会先发图片，再补一条带 <code>Codex · session ...</code> 的说明。
+        </div>
+      </section>
+
+      <section>
+        <h2>10. 现在这个版本的边界</h2>
+        <ul class="checklist">
+          <li>支持文本消息和 Codex 产出的本地图片回传；仍不处理用户上传的图片、文件、语音。</li>
+          <li>只回传最终答案，不实时显示 Codex 工具调用过程。</li>
+          <li>每个 chat 串行执行，防止同一个项目同时被多个任务改乱。</li>
+          <li>默认 sandbox 是 <code>workspace-write</code>，Codex 可以写工作区，但不会默认全盘无沙箱。</li>
+          <li>默认不需要 <code>OPENAI_API_KEY</code>；如果未来让桥接服务直接调用 OpenAI Images API，才需要单独配置。</li>
+          <li>如果 Codex 里再调用 <code>lark-cli</code>，可能遇到 keychain 或 sandbox 权限问题，这是另一个层面的配置。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>11. 常用操作速查</h2>
+        <div class="grid two">
+          <div class="card">
+            <strong>查看服务日志</strong>
+            <pre><code>tail -f codex-feishu-bridge/bridge.log</code></pre>
+          </div>
+          <div class="card">
+            <strong>查看后台 screen</strong>
+            <pre><code>screen -ls</code></pre>
+          </div>
+          <div class="card">
+            <strong>停止服务</strong>
+            <pre><code>screen -S codex-feishu-bridge -X quit</code></pre>
+          </div>
+          <div class="card">
+            <strong>飞书里查看状态</strong>
+            <pre><code>/status</code></pre>
+          </div>
+          <div class="card">
+            <strong>飞书里测试生图</strong>
+            <pre><code>/image 生成一张简单的红色圆形图标</code></pre>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    本页是给编程新手看的项目说明：重点理解“消息进来、任务执行、结果回去”的闭环。
+  </footer>
+</body>
+</html>
